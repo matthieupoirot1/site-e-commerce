@@ -1,0 +1,106 @@
+<?php
+
+require_once (File::build_path(array("model", "Model.php")));
+
+class ModelProduit {
+
+    private $id;
+    private $libelle;
+    private $quantite;
+    protected static $object = "produit";
+    protected static $primary = "id";
+
+    function getId() {
+        return $this->id;
+    }
+
+    function getLibelle() {
+        return $this->libelle;
+    }
+
+    function getQuantite() {
+        return $this->quantite;
+    }
+
+    function setId($id) {
+        $this->id = $id;
+    }
+
+    function setLibelle($libelle) {
+        $this->libelle = $libelle;
+    }
+
+    function setQuantite($quantite) {
+        $this->quantite = $quantite;
+    }
+
+    function __construct($libelle = NULL, $quantite = NULL) {
+        if (!is_null($id) && !is_null($libelle) && !is_null($quantite)) {
+            $this->id = $id;
+            $this->libelle = $libelle;
+            $this->quantite = $quantite;
+        }
+    }
+
+    public static function getAllProduits() {
+        $requete = "SELECT * FROM p_produit";
+        $rep = Model::$pdo->query($requete);
+        $rep->setFetchMode(PDO::FETCH_CLASS, 'ModelProduit');
+        return $rep->fetchAll();
+    }
+
+    public static function getProduitById($id) {
+        $requete = "SELECT * FROM p_produit WHERE id=:nom_tag";
+        $requete_prepare = Model::$pdo->prepare($requete);
+        $values = array(
+            ":nom_tag" => $id,
+        );
+        $requete_prepare->execute($values);
+        $requete_prepare->setFetchMode(PDO::FETCH_CLASS, 'ModelProduit');
+        $tabi_produit = $requete_prepare->fetchAll();
+        if (empty($tab_produit)) {
+            return false;
+        }
+        return $tab_produit[0];
+    }
+    
+    public static function create() {
+        $requete = "INSERT INTO p_produit(libelle,quantite) VALUES (:libelle, :quantite)";
+        $requete_prepare = Model::$pdo->prepare($requete);
+        $values = array (
+            ":libelle" => $this->libelle, 
+            ":quantite" => $this->quantite
+        );
+        try{
+            $requete_prepare->execute($values);
+            return true;
+        }catch(PDOException $e){
+            return false;
+        }
+        
+    }
+    
+    public static function update($data){
+        $sql = "UPDATE p_produit SET libelle=:libelle, quantite=:quantite WHERE id=:id";
+        // Préparation de la requête
+        $req_prep = Model::$pdo->prepare($sql);
+        $m=$data['marque'];
+        $c=$data['couleur'];
+        $i=$data['immatriculation'];
+        $values = array(
+            ":libelle" => $data['libelle'],
+            ":quantite" => $data['quantite'],
+            ":id" => $data['id']
+            //nomdutag => valeur, ...
+        );
+        // On donne les valeurs et on exécute la requête
+        try {
+            $req_prep->execute($values);
+            return true;
+        }
+        catch (PDOException $e) {
+            return false;
+        }
+    }
+
+}

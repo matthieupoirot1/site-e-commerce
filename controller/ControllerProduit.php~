@@ -1,0 +1,62 @@
+<?php
+
+require_once (File::build_path(array("model", "ModelProduit.php")));
+
+class ControllerProduit {
+
+    public static function readAll() {
+        $controller = 'produit';
+        $view = 'list';
+        $pagetitle = 'Liste des produits';
+        $tab_produit = ModelProduit::getAllProduits();
+        require File::build_path(array("view", "view.php"));
+    }
+    
+    public static function read() {
+        $controller = 'produit';
+        $view = 'detail';
+        $pagetitle = 'Détail du produit';
+        var_dump($_GET['id']);
+        $p = ModelProduit::getProduitById($_GET['id']);
+        var_dump($p);
+        require File::build_path(array("view", "view.php"));
+    }
+
+    public static function create(){
+        $controller = 'produit';
+        $view = 'create';
+        $pagetitle = "Enregistrement d'un produit";
+        require  File::build_path(array("view","view.php"));
+                
+    }
+    
+    public static function created() {
+        $p = new ModelProduit($_GET['libelle'], $_GET['quantite']);
+        if(!is_object($p)){echo"<font color='red' size='5'>DB N EST PAS UN OBJET</font>";}
+	if(is_object($p)){echo"<font color='red' size='5'>DB EST UN OBJET</font>";}
+        if($p->create()){ 
+            
+            $controller = 'produit';
+            $view = 'created';
+            $pagetitle = 'Liste des produits';
+            $tab_produit = ModelProduit::getAllProduits();
+            require File::build_path("view","view.php");
+        }
+        else{
+            $controller="produit";
+            $view = "error";
+            $pagetitle = "Erreur";
+            
+            require File::build_path(array("view","view.php"));   
+        }
+        
+    }
+    
+    public static function update(){
+        
+        $pagetitle = "Mise à jour de la voiture";
+        $view='update';
+        $p = ModelProduit::getProduitById($_GET['id']);
+        
+    }
+}
